@@ -1,11 +1,11 @@
 <?php
 
-namespace APP\Livewire;
+namespace App\Livewire;
 
 use Livewire\Component;
 
-class showHomePage extends Component{
+class ShowHomePage extends Component {
     public function render(){
-        return view ('livewire.show-home-page');
+        return view('livewire.show-home-page');
     }
 }

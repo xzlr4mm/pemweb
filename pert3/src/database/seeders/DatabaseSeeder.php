@@ -15,11 +15,18 @@ class DatabaseSeeder extends Seeder
     {
         // User::factory(10)->create();
 
-        $user = \App\Models\User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@admin.com',
-        ]);
+        if(User::count()==0){
 
-        $user->assignRole('super_admin');
+            $user = \App\Models\User::factory()->create([
+                'name' => 'Admin',
+                'email' => 'admin@admin.com',
+            ]);
+
+            $user->assignRole('super_admin');
+        }
+
+        $this->call([
+            FooterSeeder::class,
+        ]);
     }
 }
