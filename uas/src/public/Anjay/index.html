@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warteg Digital</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .menu-card {
+            background: white;
+            margin-bottom: 20px;
+        }
+        
+        .price-badge {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .category-badge {
+            background: linear-gradient(45deg, #6f42c1, #e83e8c);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.8em;
+        }
+        
+        .order-form {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        
+        .btn-custom {
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .header-title {
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+        
+        .cart-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .total-section {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .page-section {
+            display: none;
+        }
+        
+        .page-section.active {
+            display: block;
+        }
+        
+        .navbar-custom {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin: 20px;
+            padding: 10px 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar-custom">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <h4 class="mb-0 text-primary">
+                <i class="fas fa-utensils"></i> Warteg Digital
+            </h4>
+            <div>
+                <button class="btn btn-outline-primary btn-sm me-2" onclick="showPage('menu')">
+                    <i class="fas fa-list"></i> Menu
+                </button>
+                <button class="btn btn-outline-success btn-sm me-2" onclick="showPage('order')">
+                    <i class="fas fa-shopping-cart"></i> Pesan (<span id="cart-count">0</span>)
+                </button>
+                <button class="btn btn-outline-info btn-sm" onclick="showPage('orders')">
+                    <i class="fas fa-history"></i> Riwayat
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Success Alert -->
+        <div id="success-alert" class="alert alert-success alert-dismissible fade" role="alert" style="display: none;">
+            <i class="fas fa-check-circle"></i>
+            <span id="success-message"></span>
+            <button type="button" class="btn-close" onclick="hideAlert()"></button>
+        </div>
+
+        <!-- Menu Page -->
+        <div id="menu-page" class="page-section active">
+            <h1 class="text-center header-title">
+                <i class="fas fa-utensils"></i> Daftar Menu Warteg
+            </h1>
+            
+            <div class="row" id="menu-container">
+                <!-- Menu items will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Order Page -->
+        <div id="order-page" class="page-section">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="order-form">
+                        <h2 class="text-center mb-4">
+                            <i class="fas fa-shopping-cart text-success"></i> Form Pemesanan
+                        </h2>
+                        
+                        <div id="cart-items">
+                            <!-- Cart items will be displayed here -->
+                        </div>
+                        
+                        <div class="total-section">
+                            <h4 class="mb-0">
+                                <i class="fas fa-calculator"></i> Total: 
+                                <span id="total-price">Rp 0</span>
+                            </h4>
+                        </div>
+                        
+                        <form id="order-form" class="mt-4">
+                            <div class="mb-3">
+                                <label for="customer_name" class="form-label">
+                                    <i class="fas fa-user"></i> Nama Pelanggan
+                                </label>
+                                <input type="text" class="form-control" id="customer_name" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">
+                                    <i class="fas fa-phone"></i> No. Telepon
+                                </label>
+                                <input type="tel" class="form-control" id="phone" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="notes" class="form-label">
+                                    <i class="fas fa-sticky-note"></i> Catatan Tambahan
+                                </label>
+                                <textarea class="form-control" id="notes" rows="3" placeholder="Pedas, tanpa sayur, dll..."></textarea>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-custom">
+                                    <i class="fas fa-paper-plane"></i> Kirim Pesanan
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-custom" onclick="clearCart()">
+                                    <i class="fas fa-trash"></i> Kosongkan Keranjang
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders History Page -->
+        <div id="orders-page" class="page-section">
+            <h1 class="text-center header-title">
+                <i class="fas fa-history"></i> Riwayat Pesanan
+            </h1>
+            
+            <div class="row">
+                <div class="col-12">
+                    <div class="order-form">
+                        <div id="orders-list">
+                            <!-- Orders history will be displayed here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Sample menu data
+        const menus = [
+            {
+                id: 1,
+                name: "Nasi Ayam Goreng",
+                description: "Nasi putih dengan ayam goreng crispy dan lalapan segar",
+                price: 15000,
+                kategori: "Makanan Utama",
+                image: "🍗"
+            },
+            {
+                id: 2,
+                name: "Nasi Ikan Bakar",
+                description: "Nasi putih dengan ikan bakar bumbu kecap dan sambal",
+                price: 18000,
+                kategori: "Makanan Utama",
+                image: "🐟"
+            },
+            {
+                id: 3,
+                name: "Nasi Sayur Asem",
+                description: "Nasi putih dengan sayur asem segar dan kerupuk",
+                price: 10000,
+                kategori: "Makanan Utama",
+                image: "🥗"
+            },
+            {
+                id: 4,
+                name: "Gado-Gado",
+                description: "Sayuran segar dengan bumbu kacang khas Indonesia",
+                price: 12000,
+                kategori: "Makanan Ringan",
+                image: "🥙"
+            },
+            {
+                id: 5,
+                name: "Es Teh Manis",
+                description: "Minuman teh manis dingin yang menyegarkan",
+                price: 3000,
+                kategori: "Minuman",
+                image: "🧊"
+            },
+            {
+                id: 6,
+                name: "Es Jeruk",
+                description: "Jus jeruk segar dengan es batu",
+                price: 5000,
+                kategori: "Minuman",
+                image: "🍊"
+            },
+            {
+                id: 7,
+                name: "Tempe Goreng",
+                description: "Tempe goreng crispy dengan sambal kecap",
+                price: 8000,
+                kategori: "Makanan Ringan",
+                image: "🟤"
+            },
+            {
+                id: 8,
+                name: "Tahu Isi",
+                description: "Tahu goreng dengan isi sayuran dan tauge",
+                price: 6000,
+                kategori: "Makanan Ringan",
+                image: "⬜"
+            }
+        ];
+
+        let cart = [];
+        let orders = [];
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadMenu();
+            loadOrders();
+            updateCartDisplay();
+        });
+
+        function loadMenu() {
+            const container = document.getElementById('menu-container');
+            container.innerHTML = '';
+            
+            menus.forEach(menu => {
+                const menuCard = `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card menu-card">
+                            <div class="card-body text-center">
+                                <div style="font-size: 3rem; margin-bottom: 15px;">${menu.image}</div>
+                                <h5 class="card-title">${menu.name}</h5>
+                                <p class="card-text text-muted">${menu.description}</p>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="price-badge">Rp ${menu.price.toLocaleString()}</span>
+                                    <span class="category-badge">${menu.kategori}</span>
+                                </div>
+                                <button class="btn btn-success btn-custom w-100" onclick="addToCart(${menu.id})">
+                                    <i class="fas fa-plus"></i> Tambah ke Keranjang
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += menuCard;
+            });
+        }
+
+        function addToCart(menuId) {
+            const menu = menus.find(m => m.id === menuId);
+            const existingItem = cart.find(item => item.id === menuId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push({...menu, quantity: 1});
+            }
+            
+            updateCartDisplay();
+            showAlert(`${menu.name} ditambahkan ke keranjang!`);
+        }
+
+        function removeFromCart(menuId) {
+            cart = cart.filter(item => item.id !== menuId);
+            updateCartDisplay();
+            updateCartItems();
+        }
+
+        function updateQuantity(menuId, quantity) {
+            const item = cart.find(item => item.id === menuId);
+            if (item) {
+                item.quantity = Math.max(1, quantity);
+                updateCartDisplay();
+                updateCartItems();
+            }
+        }
+
+        function updateCartDisplay() {
+            const cartCount = document.getElementById('cart-count');
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartCount.textContent = totalItems;
+        }
+
+        function updateCartItems() {
+            const container = document.getElementById('cart-items');
+            const totalPrice = document.getElementById('total-price');
+            
+            if (cart.length === 0) {
+                container.innerHTML = '<p class="text-center text-muted">Keranjang kosong</p>';
+                totalPrice.textContent = 'Rp 0';
+                return;
+            }
+            
+            let html = '';
+            let total = 0;
+            
+            cart.forEach(item => {
+                const subtotal = item.price * item.quantity;
+                total += subtotal;
+                
+                html += `
+                    <div class="cart-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">${item.name}</h6>
+                                <small class="text-muted">Rp ${item.price.toLocaleString()} x ${item.quantity}</small>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <button class="btn btn-sm btn-outline-secondary me-2" onclick="updateQuantity(${item.id}, ${item.quantity - 1})">-</button>
+                                <input type="number" class="form-control form-control-sm me-2" style="width: 60px;" value="${item.quantity}" onchange="updateQuantity(${item.id}, this.value)">
+                                <button class="btn btn-sm btn-outline-secondary me-3" onclick="updateQuantity(${item.id}, ${item.quantity + 1})">+</button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="removeFromCart(${item.id})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="text-end mt-2">
+                            <strong>Rp ${subtotal.toLocaleString()}</strong>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            totalPrice.textContent = `Rp ${total.toLocaleString()}`;
+        }
+
+        function clearCart() {
+            if (confirm('Yakin ingin mengosongkan keranjang?')) {
+                cart = [];
+                updateCartDisplay();
+                updateCartItems();
+                showAlert('Keranjang telah dikosongkan');
+            }
+        }
+
+        function showPage(pageName) {
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(pageName + '-page').classList.add('active');
+            
+            if (pageName === 'order') {
+                updateCartItems();
+            } else if (pageName === 'orders') {
+                loadOrders();
+            }
+        }
+
+        function showAlert(message) {
+            const alert = document.getElementById('success-alert');
+            const messageSpan = document.getElementById('success-message');
+            messageSpan.textContent = message;
+            alert.style.display = 'block';
+            alert.classList.add('show');
+            
+            setTimeout(() => {
+                hideAlert();
+            }, 3000);
+        }
+
+        function hideAlert() {
+            const alert = document.getElementById('success-alert');
+            alert.classList.remove('show');
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 150);
+        }
+
+        document.getElementById('order-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (cart.length === 0) {
+                alert('Keranjang masih kosong!');
+                return;
+            }
+            
+            const customerName = document.getElementById('customer_name').value;
+            const phone = document.getElementById('phone').value;
+            const notes = document.getElementById('notes').value;
+            
+            const order = {
+                id: Date.now(),
+                customerName: customerName,
+                phone: phone,
+                notes: notes,
+                items: [...cart],
+                total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+                date: new Date().toLocaleString('id-ID'),
+                status: 'Dalam Proses'
+            };
+            
+            orders.unshift(order);
+            localStorage.setItem('warteg_orders', JSON.stringify(orders));
+            
+            // Clear form and cart
+            document.getElementById('order-form').reset();
+            cart = [];
+            updateCartDisplay();
+            updateCartItems();
+            
+            showAlert('Pesanan berhasil dikirim! Terima kasih.');
+            showPage('orders');
+        });
+
+        function loadOrders() {
+            const savedOrders = localStorage.getItem('warteg_orders');
+            if (savedOrders) {
+                orders = JSON.parse(savedOrders);
+            }
+            
+            const container = document.getElementById('orders-list');
+            
+            if (orders.length === 0) {
+                container.innerHTML = '<p class="text-center text-muted">Belum ada pesanan</p>';
+                return;
+            }
+            
+            let html = '';
+            orders.forEach(order => {
+                html += `
+                    <div class="card mb-3">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Pesanan #${order.id}</h6>
+                            <small class="text-muted">${order.date}</small>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p><strong>Nama:</strong> ${order.customerName}</p>
+                                    <p><strong>Telepon:</strong> ${order.phone}</p>
+                                    ${order.notes ? `<p><strong>Catatan:</strong> ${order.notes}</p>` : ''}
+                                </div>
+                                <div class="col-md-6">
+                                    <p><strong>Status:</strong> <span class="badge bg-warning">${order.status}</span></p>
+                                    <p><strong>Total:</strong> <span class="text-success fw-bold">Rp ${order.total.toLocaleString()}</span></p>
+                                </div>
+                            </div>
+                            <h6>Item Pesanan:</h6>
+                            <ul class="list-group list-group-flush">
+                                ${order.items.map(item => `
+                                    <li class="list-group-item d-flex justify-content-between">
+                                        <span>${item.name} x ${item.quantity}</span>
+                                        <span>Rp ${(item.price * item.quantity).toLocaleString()}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>
